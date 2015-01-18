@@ -7,7 +7,22 @@
 -include_lib("eunit/include/eunit.hrl").
 
 solve(Max) ->
-    lists:foldl(fun(Prime,Acc) -> Acc+Prime end, 0, primes(Max)).
+    Primes = primes(Max),
+    length(lists:filter(fun(Prime) ->
+                                lists:all(fun(N) -> 
+                                                  lists:member(N, Primes)
+                                          end,
+                                          rotate_number(Prime))
+                        end,
+                        Primes)).
+
+rotate_number(N) ->
+    rotate_number(trunc(math:log10(N))+1, integer_to_list(N), []).
+
+rotate_number(0, _N, List) -> List;
+rotate_number(Iteration, [H|T], List) ->
+    NewNumber = T ++ [H],
+    rotate_number(Iteration - 1, NewNumber, [list_to_integer(NewNumber) | List]).
 
 % http://stackoverflow.com/a/599002/510067
 primes(Prime, Max, Primes,Integers) when Prime > Max ->
@@ -23,6 +38,11 @@ primes_test_() ->
     [?_assertEqual([2,3,5,7], primes(10))
     ,?_assertEqual([2,3,5,7,11,13,17,19], primes(20))
     ].
+rotate_number_test_() ->
+    [?_assertEqual([197,719,971], rotate_number(197))
+    ,?_assertEqual([7], rotate_number(7))
+    ].
 solve_test_() ->
     [?_assertEqual(13, solve(100))
+    ,?_assertEqual(9, solve(72))
     ].

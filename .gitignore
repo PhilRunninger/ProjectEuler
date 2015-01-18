@@ -1,3 +1,4 @@
-*.sw[a-p]
-*.dump
+erl_crash.dump
+*.beam
 tags
+*.sw[a-p]
