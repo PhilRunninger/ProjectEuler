@@ -2,7 +2,7 @@
 % What is the 10,001st prime number?
 
 -module(problem0007).
--export([solve/1]).
+-export([primes/1, solve/1]).
 -include_lib("eunit/include/eunit.hrl").
 
 solve(Count) ->
