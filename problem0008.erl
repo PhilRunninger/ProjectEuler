@@ -21,7 +21,7 @@ substrings(Length, Digits) ->
 products(Length, Digits) ->
     lists:map(fun(SubString) -> {product(SubString), SubString} end, substrings(Length, Digits)).
 
-primes_test_() ->
+problem0008_test_() ->
     [
         ?_assertEqual(540, product("4593"))
        ,?_assertEqual(180, product("459"))
