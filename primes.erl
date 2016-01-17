@@ -1,5 +1,5 @@
 -module(primes).
--export([less_than/1, first/1, is_prime/1]).
+-export([less_than/1, first/1, is_prime/1, next/0, next/1]).
 -include_lib("eunit/include/eunit.hrl").
 
 %--------------------------------------------------------------------------------
@@ -45,6 +45,21 @@ twin_primes([_A, B | T], TwinPrimes) ->
   twin_primes([B | T], TwinPrimes).
 
 %--------------------------------------------------------------------------------
+next() ->
+  next([]).
+next([]) ->
+  {2, [2]};
+next(InPrimes) ->
+  [LastPrime|_] = lists:reverse(InPrimes),
+  next(LastPrime+1, InPrimes).
+next(Candidate, InPrimes) ->
+  next(Candidate, not lists:any(fun(X) -> Candidate rem X == 0 end, InPrimes), InPrimes).
+next(Candidate, true, InPrimes) ->
+  {Candidate, lists:reverse([Candidate | lists:reverse(InPrimes)])};
+next(Candidate, false, InPrimes) ->
+  next(Candidate+1, InPrimes).
+
+%--------------------------------------------------------------------------------
 less_than_test_() ->
   [
    ?_assertEqual([2,3,5,7], less_than(10))
@@ -65,4 +80,11 @@ tiwn_primes_test_() ->
   [
     ?_assertEqual([], twin_primes([2,3]))
    ,?_assertEqual([{3,5},{5,7},{11,13}], twin_primes([2,3,5,7,11,13,17]))
+  ].
+next_test_() ->
+  [
+    ?_assertEqual({2, [2]}, next())
+   ,?_assertEqual({2, [2]}, next([]))
+   ,?_assertEqual({3, [2,3]}, next([2]))
+   ,?_assertEqual({5, [2,3,5]}, next([2,3]))
   ].
