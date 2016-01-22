@@ -6,8 +6,14 @@
 %
 % Evaluate the sum of all the amicable numbers under 10000.
 
-% in erl shell....
-
-A = lists:map(fun(N) -> {N, lists:foldl(fun(Sum,X)->Sum+X end,0,[X || X <- lists:seq(1,N div 2), N rem X == 0])} end, lists:seq(1,1000)).
-B = lists:filter(fun({N, Sum}) -> lists:member({Sum,N},A) andalso N =/= Sum end, A).
-lists:foldl(fun({X,_},Sum)->X+Sum end, 0, B).
+-module(problem0021).
+-export([solve/1]).
+solve(Limit) ->
+  A = lists:map(fun(N) -> 
+                  {N, lists:foldl(fun(Sum,X)->Sum+X end,0,
+                        [X || X <- lists:seq(1,N div 2), N rem X == 0])
+                  } 
+                end, 
+                lists:seq(1,Limit)),
+  B = lists:filter(fun({N, Sum}) -> lists:member({Sum,N},A) andalso N =/= Sum end, A),
+  lists:foldl(fun({X,_},Sum)->X+Sum end, 0, B).
