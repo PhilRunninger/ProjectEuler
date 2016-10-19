@@ -1,6 +1,6 @@
 -module(factors).
 
--export([factors/1,common_factors/1,prime_factors/1]).
+-export([factors/1,common_factors/1,prime_factors/1, proper_factors/1, is_perfect/1, is_deficient/1, is_abundant/1]).
 
 -include_lib("eunit/include/eunit.hrl").
 
@@ -20,6 +20,13 @@ prime_factors(1, _, Factors) -> lists:usort(Factors);
 prime_factors(N, F, Factors) -> prime_factors(N, F, N rem F, Factors).
 prime_factors(N, F, 0, Factors) -> prime_factors(N div F, F, [F | Factors]);
 prime_factors(N, F, _, Factors) -> prime_factors(N, F+1, Factors).
+
+proper_factors(N) ->
+    [ X || X <- factors(N), X < N ].
+
+is_perfect(N) -> lists:sum(proper_factors(N)) == N.
+is_deficient(N) -> lists:sum(proper_factors(N)) < N.
+is_abundant(N) -> lists:sum(proper_factors(N)) > N.
 
 factors_test_() ->
   [
@@ -49,3 +56,26 @@ prime_factors_test_() ->
    ,?_assertEqual([2,3], prime_factors(12))
    ,?_assertEqual([2,5], prime_factors(12500))
   ].
+proper_factors_test_() ->
+    [
+     ?_assertEqual([1,2,3], proper_factors(6))
+    ,?_assertEqual([1,2,3,4,6], proper_factors(12))
+    ].
+is_perfect_test_() ->
+    [
+     ?_assertEqual(false, is_perfect(5))
+    ,?_assertEqual(true, is_perfect(6))
+    ,?_assertEqual(false, is_perfect(12))
+    ].
+is_deficient_test_() ->
+    [
+     ?_assertEqual(true, is_deficient(5))
+    ,?_assertEqual(false, is_deficient(6))
+    ,?_assertEqual(false, is_deficient(12))
+    ].
+is_abundant_test_() ->
+    [
+     ?_assertEqual(false, is_abundant(5))
+    ,?_assertEqual(false, is_abundant(6))
+    ,?_assertEqual(true, is_abundant(12))
+    ].
