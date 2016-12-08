@@ -76,7 +76,7 @@ is_prime_test_() ->
     ?_assertEqual(true, is_prime(5))
    ,?_assertEqual(false, is_prime(4))
   ].
-tiwn_primes_test_() ->
+twin_primes_test_() ->
   [
     ?_assertEqual([], twin_primes([2,3]))
    ,?_assertEqual([{3,5},{5,7},{11,13}], twin_primes([2,3,5,7,11,13,17]))
