@@ -19,7 +19,8 @@ prime_factors(N) -> prime_factors(N, 2, []).
 prime_factors(1, _, Factors) -> lists:usort(Factors);
 prime_factors(N, F, Factors) -> prime_factors(N, F, N rem F, Factors).
 prime_factors(N, F, 0, Factors) -> prime_factors(N div F, F, [F | Factors]);
-prime_factors(N, F, _, Factors) -> prime_factors(N, F+1, Factors).
+prime_factors(N, 2, _, Factors) -> prime_factors(N, 3, Factors);
+prime_factors(N, F, _, Factors) -> prime_factors(N, F+2, Factors).
 
 proper_factors(N) ->
     [ X || X <- factors(N), X < N ].
