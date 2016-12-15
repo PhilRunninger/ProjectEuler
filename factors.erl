@@ -1,6 +1,6 @@
 -module(factors).
 
--export([factors/1,common_factors/1,prime_factors/1, proper_factors/1, is_perfect/1, is_deficient/1, is_abundant/1]).
+-export([factors/1, common_factors/1, prime_factors/1, prime_factors/2, proper_factors/1, is_perfect/1, is_deficient/1, is_abundant/1]).
 
 -include_lib("eunit/include/eunit.hrl").
 
@@ -15,12 +15,15 @@ factors(_N, F1, F2, Factors) when F1 > F2     -> lists:usort(Factors);
 factors(N, F1, F2, Factors) when F1 * F2 == N -> factors(N, F1+1, round(N / (F1+1)), Factors ++ [F1, F2]);
 factors(N, F1, _F2, Factors)                  -> factors(N, F1+1, round(N / (F1+1)), Factors).
 
-prime_factors(N) -> prime_factors(N, 2, []).
-prime_factors(1, _, Factors) -> lists:usort(Factors);
-prime_factors(N, F, Factors) -> prime_factors(N, F, N rem F, Factors).
-prime_factors(N, F, 0, Factors) -> prime_factors(N div F, F, [F | Factors]);
-prime_factors(N, 2, _, Factors) -> prime_factors(N, 3, Factors);
-prime_factors(N, F, _, Factors) -> prime_factors(N, F+2, Factors).
+prime_factors(N) -> prime_factors(N, unique).
+prime_factors(N, Option) -> prime_factors(N, 2, [], Option).
+prime_factors(1, _, Factors, all) -> lists:sort(Factors);
+prime_factors(1, _, Factors, unique) -> lists:usort(Factors);
+prime_factors(1, _, Factors, with_powers) -> lists:map(fun(P) -> {P, length([Q || Q<-Factors, Q==P])} end, lists:usort(Factors));
+prime_factors(N, F, Factors, Option) -> prime_factors(N, F, N rem F, Factors, Option).
+prime_factors(N, F, 0, Factors, Option) -> prime_factors(N div F, F, [F | Factors], Option);
+prime_factors(N, 2, _, Factors, Option) -> prime_factors(N, 3, Factors, Option);
+prime_factors(N, F, _, Factors, Option) -> prime_factors(N, F+2, Factors, Option).
 
 proper_factors(N) ->
     [ X || X <- factors(N), X < N ].
@@ -56,6 +59,12 @@ prime_factors_test_() ->
     ?_assertEqual([2], prime_factors(4))
    ,?_assertEqual([2,3], prime_factors(12))
    ,?_assertEqual([2,5], prime_factors(12500))
+   ,?_assertEqual([2,5], prime_factors(12500, unique))
+   ,?_assertEqual([2,2,3], prime_factors(12, all))
+   ,?_assertEqual([2,2,5,5,5,5,5], prime_factors(12500, all))
+   ,?_assertEqual([{2,2}], prime_factors(4, with_powers))
+   ,?_assertEqual([{2,2},{3,1}], prime_factors(12, with_powers))
+   ,?_assertEqual([{2,2},{5,5}], prime_factors(12500, with_powers))
   ].
 proper_factors_test_() ->
     [
