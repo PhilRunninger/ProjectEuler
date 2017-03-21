@@ -23,12 +23,12 @@
 
 solve() ->
     Lines = for_each_line("p089_roman.txt",
-                         fun(X, List) -> [string:strip(X, right, $\n) | List] end, 
-                         [read], 
+                         fun(X, List) -> [string:strip(X, right, $\n) | List] end,
+                         [read],
                          []),
-    lists:foldl(fun(X, Accum) -> 
+    lists:foldl(fun(X, Accum) ->
                         io:format("~p   =   ~p   =   ~p: ~p~n", [X, to_arabic(X), to_roman(to_arabic(X)), length(X) - length(to_roman(to_arabic(X)))]),
-                        Accum + length(X) - length(to_roman(to_arabic(X))) 
+                        Accum + length(X) - length(to_roman(to_arabic(X)))
                 end, 0, Lines).
 
 for_each_line(Name, Proc, Mode, Accum0) ->
@@ -36,7 +36,7 @@ for_each_line(Name, Proc, Mode, Accum0) ->
     for_each_line(Device, Proc, Accum0).
 for_each_line(Device, Proc, Accum) ->
     case io:get_line(Device, "") of
-        eof  -> file:close(Device), 
+        eof  -> file:close(Device),
                 Accum;
         Line -> for_each_line(Device, Proc, Proc(Line, Accum))
     end.
@@ -57,21 +57,13 @@ to_arabic([$C|T],      Arabic) -> to_arabic(T, Arabic+100);
 to_arabic([$D|T],      Arabic) -> to_arabic(T, Arabic+500);
 to_arabic([$M|T],      Arabic) -> to_arabic(T, Arabic+1000).
 
-to_roman(Arabic)                           -> to_roman(Arabic, "").
-to_roman(0, Roman)                         -> Roman;
-to_roman(Arabic, Roman) when Arabic < 4    -> to_roman(Arabic-1, Roman ++ "I");
-to_roman(Arabic, Roman) when Arabic < 5    -> to_roman(Arabic-4, Roman ++ "IV");
-to_roman(Arabic, Roman) when Arabic < 9    -> to_roman(Arabic-5, Roman ++ "V");
-to_roman(Arabic, Roman) when Arabic < 10   -> to_roman(Arabic-9, Roman ++ "IX");
-to_roman(Arabic, Roman) when Arabic < 40   -> to_roman(Arabic-10, Roman ++ "X");
-to_roman(Arabic, Roman) when Arabic < 50   -> to_roman(Arabic-40, Roman ++ "XL");
-to_roman(Arabic, Roman) when Arabic < 90   -> to_roman(Arabic-50, Roman ++ "L");
-to_roman(Arabic, Roman) when Arabic < 100  -> to_roman(Arabic-90, Roman ++ "XC");
-to_roman(Arabic, Roman) when Arabic < 400  -> to_roman(Arabic-100, Roman ++ "C");
-to_roman(Arabic, Roman) when Arabic < 500  -> to_roman(Arabic-400, Roman ++ "CD");
-to_roman(Arabic, Roman) when Arabic < 900  -> to_roman(Arabic-500, Roman ++ "D");
-to_roman(Arabic, Roman) when Arabic < 1000 -> to_roman(Arabic-900, Roman ++ "CM");
-to_roman(Arabic, Roman)                    -> to_roman(Arabic-1000, Roman ++ "M").
+to_roman(Arabic) -> to_roman([{1000,"M"}, {900,"CM"}, {500,"D"}, {400,"CD"}, {100,"C"}, {90,"XC"}, {50,"L"}, {40,"XL"}, {10,"X"}, {9,"IX"}, {5,"V"}, {4,"IV"}, {1,"I"}], Arabic, "").
+
+to_roman(_, 0, Roman) -> Roman;
+to_roman([{Max,Letter}|_T]=Translations, Arabic, Roman) when Arabic >= Max ->
+    to_roman(Translations, Arabic-Max, Roman++Letter);
+to_roman([_H|T], Arabic, Roman) ->
+    to_roman(T, Arabic, Roman).
 
 to_arabic_test_() ->
     [?_assertEqual(1, to_arabic("I"))
@@ -93,6 +85,7 @@ to_arabic_test_() ->
     ].
 to_roman_test_() ->
     [?_assertEqual("I", to_roman(1))
+    ,?_assertEqual("II", to_roman(2))
     ,?_assertEqual("V", to_roman(5))
     ,?_assertEqual("X", to_roman(10))
     ,?_assertEqual("L", to_roman(50))
