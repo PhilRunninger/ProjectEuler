@@ -41,29 +41,16 @@ for_each_line(Device, Proc, Accum) ->
         Line -> for_each_line(Device, Proc, Proc(Line, Accum))
     end.
 
-to_arabic(Roman)               -> to_arabic(Roman, 0).
-to_arabic([],          Arabic) -> Arabic;
-to_arabic([$I|[$V|T]], Arabic) -> to_arabic(T, Arabic+4);
-to_arabic([$I|[$X|T]], Arabic) -> to_arabic(T, Arabic+9);
-to_arabic([$I|T],      Arabic) -> to_arabic(T, Arabic+1);
-to_arabic([$V|T],      Arabic) -> to_arabic(T, Arabic+5);
-to_arabic([$X|[$L|T]], Arabic) -> to_arabic(T, Arabic+40);
-to_arabic([$X|[$C|T]], Arabic) -> to_arabic(T, Arabic+90);
-to_arabic([$X|T],      Arabic) -> to_arabic(T, Arabic+10);
-to_arabic([$L|T],      Arabic) -> to_arabic(T, Arabic+50);
-to_arabic([$C|[$D|T]], Arabic) -> to_arabic(T, Arabic+400);
-to_arabic([$C|[$M|T]], Arabic) -> to_arabic(T, Arabic+900);
-to_arabic([$C|T],      Arabic) -> to_arabic(T, Arabic+100);
-to_arabic([$D|T],      Arabic) -> to_arabic(T, Arabic+500);
-to_arabic([$M|T],      Arabic) -> to_arabic(T, Arabic+1000).
+to_arabic(Roman) -> to_arabic([{1000,"M"}, {900,"CM"}, {500,"D"}, {400,"CD"}, {100,"C"}, {90,"XC"}, {50,"L"}, {40,"XL"}, {10,"X"}, {9,"IX"}, {5,"V"}, {4,"IV"}, {1,"I"}], Roman, 0).
+to_arabic(_Translations, [], Arabic)                   -> Arabic;
+to_arabic([{_,Letter}|_T]=Translations, Roman, Arabic) -> to_arabic(string:str(Roman,Letter), Translations, Roman, Arabic).
+to_arabic(1, [{Value,Letter}|_T]=Translations, Roman, Arabic) -> to_arabic(Translations, string:sub_string(Roman, length(Letter)+1), Arabic+Value);
+to_arabic(_, [_H|T], Roman, Arabic)                           -> to_arabic(T, Roman, Arabic).
 
 to_roman(Arabic) -> to_roman([{1000,"M"}, {900,"CM"}, {500,"D"}, {400,"CD"}, {100,"C"}, {90,"XC"}, {50,"L"}, {40,"XL"}, {10,"X"}, {9,"IX"}, {5,"V"}, {4,"IV"}, {1,"I"}], Arabic, "").
-
-to_roman(_, 0, Roman) -> Roman;
-to_roman([{Max,Letter}|_T]=Translations, Arabic, Roman) when Arabic >= Max ->
-    to_roman(Translations, Arabic-Max, Roman++Letter);
-to_roman([_H|T], Arabic, Roman) ->
-    to_roman(T, Arabic, Roman).
+to_roman(_, 0, Roman)                                                          -> Roman;
+to_roman([{Value,Letter}|_T]=Translations, Arabic, Roman) when Arabic >= Value -> to_roman(Translations, Arabic-Value, Roman++Letter);
+to_roman([_H|T], Arabic, Roman)                                                -> to_roman(T, Arabic, Roman).
 
 to_arabic_test_() ->
     [?_assertEqual(1, to_arabic("I"))
