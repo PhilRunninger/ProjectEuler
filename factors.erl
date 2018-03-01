@@ -33,15 +33,18 @@ is_deficient(N) -> lists:sum(proper_factors(N)) < N.
 is_abundant(N) -> lists:sum(proper_factors(N)) > N.
 
 factors_test_() ->
-  [
-    ?_assertEqual([1], factors(1))
-   ,?_assertEqual([1,3], factors(3))
-   ,?_assertEqual([1,2,3,6], factors(6))
-   ,?_assertEqual([1,2,5,10], factors(10))
-   ,?_assertEqual([1,3,5,15], factors(15))
-   ,?_assertEqual([1,3,7,21], factors(21))
-   ,?_assertEqual([1,2,4,7,14,28], factors(28))
-  ].
+    lists:map(fun({Desc, Input, Expected}) ->
+                      {Desc, ?_assertEqual(Expected, factors(Input))}
+              end,
+              [
+               {<<"one">>, 1, [1]}
+              ,{<<"three">>, 3, [1,3]}
+              ,{<<"six">>, 6, [1,2,3,6]}
+              ,{<<"ten">>, 10, [1,2,5,10]}
+              ,{<<"fifteen">>, 15, [1,3,5,15]}
+              ,{<<"twenty-one">>, 21, [1,3,7,21]}
+              ,{<<"twenty-eight">>, 28, [1,2,4,7,14,28]}
+              ]).
 common_factors_test_() ->
   [
     ?_assertEqual([1], common_factors({1,3}))
